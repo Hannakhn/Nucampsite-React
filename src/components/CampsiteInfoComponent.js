@@ -2,6 +2,7 @@ import React, { Component } from 'react'
 import { Card, CardImg, CardText, CardTitle, CardBody, Breadcrumb, BreadcrumbItem, Button, Modal, ModalHeader, ModalBody, Label } from 'reactstrap';
 import { Link } from 'react-router-dom';
 import { Control, LocalForm, Errors } from 'react-redux-form';
+import { Loading } from './LoadingComponent';
 
 
 const maxLength = len => val => !val || (val.length <= len);
@@ -30,7 +31,7 @@ class CommentForm extends Component {
         this.toggleModal();
         this.props.addComment(this.props.campsiteId, values.rating, values.author, values.text);
         console.log('Current state is: ' + JSON.stringify(values));
-        
+
     }
 
     render() {
@@ -42,7 +43,7 @@ class CommentForm extends Component {
                     <ModalBody>
                         <LocalForm onSubmit={this.handleSubmit}>
                             <div className="form-group">
-                            <Label htmlFor="rating">Rating</Label>
+                                <Label htmlFor="rating">Rating</Label>
                                 <Control.select
                                     model=".rating" id="rating" name="rating" className="form-control">
                                     <option>1</option>
@@ -53,35 +54,35 @@ class CommentForm extends Component {
                                 </Control.select>
                             </div>
                             <div className="form-group">
-                            <Label htmlFor="author">Your Name</Label>
-                            <Control.text model=".author" id="author" name="author"
-                                placeholder="Your Name"
-                                className="form-control"
-                                validators={{
-                                    minLength: minLength(2),
-                                    maxLength: maxLength(15)
-                                }}
-                            />
-                            <Errors
-                                className="text-danger"
-                                model=".author"
-                                show="touched"
-                                component="div"
-                                messages={{
-                                    minLength: 'Must be at least 2 characters',
-                                    maxLength: 'Must be 15 characters or less'
-                                }}
-                            />
+                                <Label htmlFor="author">Your Name</Label>
+                                <Control.text model=".author" id="author" name="author"
+                                    placeholder="Your Name"
+                                    className="form-control"
+                                    validators={{
+                                        minLength: minLength(2),
+                                        maxLength: maxLength(15)
+                                    }}
+                                />
+                                <Errors
+                                    className="text-danger"
+                                    model=".author"
+                                    show="touched"
+                                    component="div"
+                                    messages={{
+                                        minLength: 'Must be at least 2 characters',
+                                        maxLength: 'Must be 15 characters or less'
+                                    }}
+                                />
                             </div>
                             <div className="form-group">
-                            <Label htmlFor="text">Comment</Label>
+                                <Label htmlFor="text">Comment</Label>
                                 <Control.textarea rows="6" model=".text" id="text" name="text" className="form-control">
 
                                 </Control.textarea>
                             </div>
                             <Button type="submit" color="primary">Submit</Button>
                         </LocalForm>
-                   </ModalBody>
+                    </ModalBody>
                 </Modal>
             </div>
         );
@@ -124,7 +125,27 @@ function RenderComments({ comments, addComment, campsiteId }) {
 }
 
 function CampsiteInfo(props) {
-    if (props.campsite)
+    if (props.isLoading) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <Loading />
+                </div>
+            </div>
+        );
+    }
+    if (props.errMess) {
+        return (
+            <div className="container">
+                <div className="row">
+                    <div className="col">
+                        <h4>{props.errMess}</h4>
+                    </div>
+                </div>
+            </div>
+        );
+    }
+    if (props.campsite) {
         return (
             <div className="container">
                 <div className="row">
@@ -139,7 +160,7 @@ function CampsiteInfo(props) {
                 </div>
                 <div className="row">
                     <RenderCampsite campsite={props.campsite} />
-                    <RenderComments 
+                    <RenderComments
                         comments={props.comments}
                         addComment={props.addComment}
                         campsiteId={props.campsite.id}
@@ -147,9 +168,8 @@ function CampsiteInfo(props) {
                 </div>
             </div>
         );
-    return <div />;
+        return <div />;
+    }
 }
 
-
-export default CampsiteInfo
-
+export default CampsiteInfo;
